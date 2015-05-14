@@ -1,19 +1,32 @@
-package org.ardeshir.SimpleScraper;
+package org.ardeshir.ComplicatedScraper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.net.*;
 import java.io.*;
+import java.util.Random;
 
 public class WikiScraper {
+  public static Random generator;
   public static void main(String[] args) {
-	  scrapeTopic("/wiki/Python");
+	  generator = new Random(31415926);
+	  scrapeTopic("/wiki/Java");
   }
   public static void scrapeTopic(String url) {
 	  String html = getUrl("http://www.wikipedia.org/"+url);
 	  Document doc = Jsoup.parse(html);
-	  String contentText = doc.select("#mw-content-text > p").first().text();
-	  System.out.println(contentText);
+	  Elements links = doc.select("#mw-content-text [href~=^/wiki/((?!:).)*$]");
+	  
+     if(links.size() == 0){
+    	 System.out.println("No links found at"+url+". Going back to Java!");
+    	 scrapeTopic("wiki/Java");
+    	 }
+     int r = generator.nextInt( links.size() );
+     System.out.println("Random link is:" +links.get(r).text() + " at url: "+links.get(r).attr("href"));
+     scrapeTopic(links.get(r).attr("href"));
+     	
   }
   public static String getUrl(String url) {
 	  URL urlObj = null;
